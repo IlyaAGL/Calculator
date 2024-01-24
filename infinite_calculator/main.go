@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"strconv"
 
 	"github.com/shopspring/decimal"
 )
@@ -22,17 +23,36 @@ func main() {
 		op = scanner.Text()
 	}
 
-	firstNumber, err := decimal.NewFromString(strings.Split(op, " ")[0])
-	if err != nil {
-		log.Fatal("Not a number!")
+	// For catching several operations
+	var operation string;
+	var ind = -1;
+	
+	// Finding operation sign
+	for i := 0; i < len(op); i++ {
+		_, err := strconv.ParseInt(string(op[i]), 10, 64)
+		if (err != nil && op[i] != ' ') {
+			if ind != -1 {
+				log.Fatal("Too many operations")
+			}
+			operation = string(op[i]);
+			ind = i;
+		}
 	}
 
-	secondNumber, err := decimal.NewFromString(strings.Split(op, " ")[2])
-	if err != nil {
-		log.Fatal("Not a number!")
+	if ind == -1 {
+		log.Fatal("No opearations detected")
 	}
 
-	operation := strings.Split(op, " ")[1]
+	firstNumber, err := decimal.NewFromString(strings.Trim(op[0 : ind], " "))
+	if err != nil {
+		log.Fatal("Not a number")
+	}
+
+	secondNumber, err := decimal.NewFromString(strings.Trim(op[(ind + 1):], " "))
+	if err != nil {
+		log.Fatal("Not a number")
+	}
+
 
 	switch operation {
 	case "+":
@@ -63,7 +83,7 @@ func main() {
 			next = nextScanner.Text()
 		}
 
-		if next == "over" {
+		if next == "!" {
 			os.Exit(1)
 		}
 
@@ -93,5 +113,4 @@ func main() {
 		}
 
 	}
-	//fmt.Printf("Type is %T", firstNumber)
 }
